@@ -1,0 +1,187 @@
+<!DOCTYPE html><html><head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=0">
+	<script src="audio/bgm.js"></script>
+	<title>八束村奇譚</title>
+	<link rel="stylesheet" type="text/css" href="avg.css">
+	<style>
+		.mincho {
+			font-family: "Yu Mincho", "YuMincho", "游明朝", "Hiragino Mincho ProN", "MS Mincho", serif;
+		}
+		#title-area {
+			position: relative;
+			margin: 10px;
+			width: 538px;
+			height: 180px;
+			border: solid 1px white;
+			overflow: hidden;
+		}
+		#title-area img {
+			position: absolute;
+			left: 0; top: 0;
+			opacity: 0;
+			animation: fadein 2.5s forwards;
+		}
+		#title-text {
+			position: absolute;
+			top: 14px; left: 22px;
+			writing-mode: vertical-rl;
+			font-size: 26px;
+			letter-spacing: 0.15em;
+			white-space: nowrap;
+			color: #ece4dc;
+			text-shadow: 0 0 6px #b01010, 0 0 18px #700000;
+			opacity: 0;
+			animation: fadein 3s 1s forwards;
+		}
+		#title-sub {
+			position: absolute;
+			top: 18px; left: 62px;
+			writing-mode: vertical-rl;
+			font-size: 10px;
+			letter-spacing: 0.4em;
+			color: #b8a8a0;
+			opacity: 0;
+			animation: fadein 3s 2s forwards;
+		}
+		#menu {
+			margin: 0 10px 10px 10px;
+			padding: 10px;
+			width: 518px;
+			height: 80px;	/* same as the message box of the scenes */
+			display: flex;
+			align-items: center;
+			border: solid 1px white;
+			opacity: 0;
+			animation: fadein 1.5s 3s forwards;
+		}
+		#menu ul {
+			width: 100%;
+			text-align: center;
+		}
+		#menu li {
+			display: inline-block;
+			list-style: none;
+			margin: 0 28px;
+			padding: 2px 12px;
+			font-size: 16px;
+			letter-spacing: 0.15em;
+			cursor: pointer;
+		}
+		#menu li:hover {
+			color: black;
+			background-color: white;
+		}
+		#menu li.disabled {
+			color: gray;
+			background: none;
+			cursor: default;
+		}
+		@keyframes fadein {
+			to { opacity: 1; }
+		}
+	</style>
+</head>
+<body>
+	<div id="main-area">
+		<div id="title-area">
+			<img src="img/title.jpg" alt="">
+			<div id="title-text" class="mincho">八束村奇譚</div>
+			<div id="title-sub" class="mincho">やつかむら　きたん</div>
+		</div>
+		<div id="menu">
+			<ul>
+				<li id="menu-start" class="mincho">はじめから</li>
+				<li id="menu-continue" class="mincho">つづきから</li>
+			</ul>
+		</div>
+	</div>
+	<audio id="bgm-audio" src="audio/bgm-title.mp3" data-track="title" loop preload="auto"></audio>
+
+	<script>
+		// same storage keys as avg.js
+		const FLAG_KEY = 'yatsuka:AVG_FLAG_KEY';
+		const STORAGE_KEY = 'yatsuka:avg_save_slot_';
+		const SLOT_COUNT = 3;
+
+		const loadSlot = function (slot) {
+			const raw = localStorage.getItem(STORAGE_KEY + slot);
+			return raw ? JSON.parse(raw) : null;
+		};
+
+		const fmtDate = function (iso) {
+			const d = new Date(iso);
+			const pad = n => String(n).padStart(2, '0');
+			return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} `
+				+ `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+		};
+
+		const closeDialog = function () {
+			document.getElementById('avg-save-overlay')?.remove();
+		};
+
+		// load dialog (same look as the one in avg.js)
+		const showLoadDialog = function () {
+			closeDialog();
+
+			const overlay = document.createElement('div');
+			overlay.id = 'avg-save-overlay';
+			overlay.addEventListener('click', e => { if (e.target === overlay) closeDialog(); });
+
+			const dialog = document.createElement('div');
+			dialog.id = 'avg-save-dialog';
+			dialog.innerHTML = '<h2>📂 ロード</h2>';
+
+			for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+				const data = loadSlot(slot);
+
+				const row = document.createElement('div');
+				row.className = 'avg-save-slot';
+
+				const info = document.createElement('div');
+				info.className = 'avg-save-slot-info';
+				info.innerHTML = `<span><strong>スロット ${slot}</strong></span>`
+					+ `<span>${data ? fmtDate(data.savedAt) : '空き'}</span>`;
+
+				const btn = document.createElement('button');
+				btn.className = 'avg-save-slot-btn do-load';
+				btn.textContent = 'ロード';
+				btn.disabled = !data;
+				btn.addEventListener('click', () => {
+					sessionStorage[FLAG_KEY] = data.flag;
+					window.location.href = `scenes/${data.sceneId}.html`;
+				});
+
+				row.appendChild(info);
+				row.appendChild(btn);
+				dialog.appendChild(row);
+			}
+
+			const closeBtn = document.createElement('button');
+			closeBtn.id = 'avg-save-close';
+			closeBtn.textContent = 'キャンセル';
+			closeBtn.addEventListener('click', closeDialog);
+			dialog.appendChild(closeBtn);
+
+			overlay.appendChild(dialog);
+			document.body.appendChild(overlay);
+		};
+
+		document.getElementById('menu-start').addEventListener('click', function () {
+			// start a new game with the flag cleared
+			sessionStorage.removeItem(FLAG_KEY);
+			window.location.href = 'scenes/00001.html';
+		});
+
+		const continueItem = document.getElementById('menu-continue');
+		let hasSave = false;
+		for (let slot = 1; slot <= SLOT_COUNT; slot++) {
+			if (loadSlot(slot)) hasSave = true;
+		}
+		if (hasSave) {
+			continueItem.addEventListener('click', showLoadDialog);
+		} else {
+			continueItem.classList.add('disabled');
+		}
+	</script>
+</body></html>

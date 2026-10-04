@@ -1,0 +1,125 @@
+/* maze.css */
+* {
+	margin:0; padding:0; text-align:left; 
+	font-family: arial, sans-serif;
+}
+body {
+	background-color:black;
+	color:white;
+}
+
+#main-area {
+	width: 560px;
+}
+
+#image-area {
+	margin: 10px;
+	float: left;
+	border: solid 1px white;
+	width: 358px;
+	height: 180px;
+}
+
+#image-area img.img-base {
+	z-index: 1;
+	position: absolute;
+}
+
+#image-area img.img-person1 {
+	z-index: 2;
+	position: absolute;
+}
+
+#command-area {
+	margin: 10px 10px 10px 0px;
+	padding: 10px;
+	float: right;
+	border: solid 1px white;
+	width: 148px;
+	height: 160px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	scrollbar-width: thin;
+	scrollbar-color: white black;
+}
+
+#command-area::-webkit-scrollbar {
+	width: 6px;
+}
+#command-area::-webkit-scrollbar-track {
+	background: black;
+}
+#command-area::-webkit-scrollbar-thumb {
+	background: white;
+}
+
+#message-area {
+	margin: 0px 10px 10px 10px;
+	padding: 10px;
+	border: solid 1px white;
+	clear: both;
+	width: 518px;
+	height: 80px;
+}
+
+#command-list li {
+	color: white;
+	list-style: none;
+}
+
+#command-list li.touch {
+	color: #000;
+	background-color: white;
+	list-style: none;
+}
+
+#command-list li.disabled {
+	color: gray;
+}
+
+#avg-save-overlay {
+	position: fixed; inset: 0;
+	background: rgba(0,0,0,0.65);
+	display: flex; align-items: center; justify-content: center;
+	z-index: 9999;
+}
+#avg-save-dialog {
+	background: #1a1a2e; color: #e0e0e0;
+	border: 2px solid #4a4a8a; border-radius: 8px;
+	padding: 24px 32px; min-width: 300px;
+	font-family: sans-serif;
+}
+#avg-save-dialog h2 {
+	margin: 0 0 16px; font-size: 1.1rem; color: #aaaaff;
+	border-bottom: 1px solid #4a4a8a; padding-bottom: 8px;
+}
+.avg-save-slot {
+	display: flex; align-items: center; justify-content: space-between;
+	padding: 10px 0; border-bottom: 1px solid #333355;
+}
+.avg-save-slot:last-of-type { border-bottom: none; }
+.avg-save-slot-info { font-size: 0.85rem; color: #aaaaaa; }
+.avg-save-slot-info span { display: block; }
+.avg-save-slot-btn {
+	padding: 6px 14px; border: none; border-radius: 4px;
+	cursor: pointer; font-size: 0.85rem; transition: opacity .15s;
+}
+.avg-save-slot-btn:hover { opacity: 0.8; }
+.avg-save-slot-btn.do-save { background: #5555cc; color: #fff; }
+.avg-save-slot-btn.do-load { background: #226622; color: #fff; }
+.avg-save-slot-btn.do-load[disabled] {
+	background: #444; color: #888; cursor: default; opacity: 1;
+}
+#avg-save-close {
+	margin-top: 16px; width: 100%;
+	padding: 8px; border: 1px solid #4a4a8a; border-radius: 4px;
+	background: transparent; color: #aaaaaa; cursor: pointer;
+}
+#avg-save-close:hover { background: #2a2a4a; }
+.avg-save-toast {
+	position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+	background: #333355; color: #e0e0e0; padding: 10px 20px;
+	border-radius: 6px; font-size: 0.85rem; z-index: 10000;
+	opacity: 0; transition: opacity .3s;
+}
+.avg-save-toast.show { opacity: 1; }

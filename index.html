@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="ja"><head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>コマンド選択式アドベンチャーゲームのススメ</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 24px 16px;
+			background: black;
+			color: white;
+			font-family: sans-serif;
+		}
+		.mincho {
+			font-family: "Yu Mincho", "YuMincho", "游明朝", "Hiragino Mincho ProN", "MS Mincho", serif;
+		}
+		header, .about, .toolbar, ul {
+			max-width: 540px;
+			margin: 0 auto;
+		}
+		header {
+			margin-bottom: 16px;
+		}
+		h1 {
+			margin: 0;
+			font-size: 22px;
+			font-weight: normal;
+			line-height: 1.5;
+			letter-spacing: 0.12em;
+		}
+		h1 span {
+			display: inline-block;
+		}
+		@media (max-width: 400px) {
+			h1 {
+				font-size: 20px;
+				letter-spacing: 0.06em;
+			}
+		}
+		.powered {
+			margin: 4px 0 0;
+			font-size: 12px;
+			letter-spacing: 0.08em;
+			color: #999;
+		}
+		.powered a {
+			color: #ccc;
+			text-decoration: none;
+		}
+		.powered a:hover {
+			color: white;
+			text-decoration: underline;
+		}
+		.toolbar {
+			display: flex;
+			justify-content: flex-end;
+			margin-bottom: 12px;
+		}
+		#sort {
+			display: flex;
+			border: solid 1px #888;
+		}
+		#sort button {
+			padding: 4px 10px;
+			border: none;
+			background: none;
+			color: #aaa;
+			font-size: 13px;
+			cursor: pointer;
+		}
+		#sort button + button {
+			border-left: solid 1px #888;
+		}
+		#sort button:hover {
+			color: white;
+		}
+		#sort button[aria-pressed="true"] {
+			background: white;
+			color: black;
+		}
+		.about {
+			margin-bottom: 24px;
+			font-size: 13px;
+			line-height: 1.8;
+			color: #bbb;
+		}
+		.about p {
+			margin: 0;
+		}
+		.about p + p {
+			margin-top: 6px;
+		}
+		.about a {
+			color: #ece4dc;
+			text-underline-offset: 3px;
+		}
+		.about a:hover {
+			color: white;
+		}
+		ul {
+			padding: 0;
+			list-style: none;
+		}
+		li {
+			margin-bottom: 20px;
+		}
+		#games a {
+			display: block;
+			border: solid 1px white;
+			color: inherit;
+			text-decoration: none;
+		}
+		.banner {
+			position: relative;
+			aspect-ratio: 538 / 180;
+			overflow: hidden;
+		}
+		.banner img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			opacity: 0.75;
+			transition: opacity 0.3s;
+		}
+		#games a:hover .banner img, #games a:focus .banner img {
+			opacity: 1;
+		}
+		.banner span {
+			position: absolute;
+			left: 20px;
+			bottom: 14px;
+			font-size: 24px;
+			letter-spacing: 0.15em;
+			color: #ece4dc;
+			text-shadow: 0 0 6px black, 0 0 14px black;
+		}
+		.info {
+			padding: 10px 14px 12px;
+			border-top: solid 1px #555;
+		}
+		.meta {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0 16px;
+			font-size: 12px;
+			color: #999;
+		}
+		.info p {
+			margin: 4px 0 0;
+			font-size: 14px;
+			line-height: 1.7;
+			color: #ddd;
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<h1 class="mincho"><span>コマンド選択式</span><span>アドベンチャーゲームの</span><span>ススメ</span></h1>
+		<p class="powered">Powered by <a href="https://github.com/it-dkt/avg.NET" target="_blank" rel="noopener">avg.NET</a></p>
+	</header>
+	<section class="about">
+		<p>ここにあるのは、アドベンチャーゲームのフレームワーク <a href="https://github.com/it-dkt/avg.NET" target="_blank" rel="noopener">avg.NET</a> で作成したゲームを、HTML と JavaScript だけで動くように変換したものです。サーバーなしで、ブラウザからそのまま遊べます。</p>
+		<p>ゲームの制作（シナリオ・画像・音楽）と HTML / JavaScript への変換は、AI（Claude）が行いました。一部の人物画像は ChatGPT で生成しています。</p>
+	</section>
+	<div class="toolbar">
+		<div id="sort" role="group" aria-label="並べ替え" hidden>
+			<button type="button" data-sort="new">新しい順</button>
+			<button type="button" data-sort="old">古い順</button>
+			<button type="button" data-sort="name">名前順</button>
+		</div>
+	</div>
+	<ul id="games">
+		<li data-created="2026-09-27" data-kana="しおみこうのくたーん">
+			<a href="shiomi/index.html">
+				<div class="banner">
+					<img src="shiomi/img/title.jpg" alt="">
+					<span class="mincho">汐見港ノクターン</span>
+				</div>
+				<div class="info">
+					<div class="meta">
+						<time datetime="2026-09-27">2026年9月27日</time>
+						<span>プレイ時間 約40〜60分</span>
+					</div>
+					<p>昭和三十三年、雨の港町・汐見。深夜の探偵事務所に現れた紅いコートの歌手は、消えた婚約者を探してほしいと言った。ネオンの滲む夜の街を歩く、ハードボイルド探偵もの。</p>
+				</div>
+			</a>
+		</li>
+		<li data-created="2026-09-27" data-kana="やつかむらきたん">
+			<a href="yatsuka/index.html">
+				<div class="banner">
+					<img src="yatsuka/img/title.jpg" alt="">
+					<span class="mincho">八束村奇譚</span>
+				</div>
+				<div class="info">
+					<div class="meta">
+						<time datetime="2026-09-27">2026年9月27日</time>
+						<span>プレイ時間 約20〜30分</span>
+					</div>
+					<p>姉が消えた山奥の村、八束村。最終バスが去った夕暮れ、祭り囃子の響く村で、姉の行方とその秘密を追う伝奇ミステリー。</p>
+				</div>
+			</a>
+		</li>
+	</ul>
+	<script>
+		(function () {
+			const SORT_KEY = 'top:sort';
+			const list = document.getElementById('games');
+			const box = document.getElementById('sort');
+			const items = Array.from(list.children);	// newest first, as written
+
+			const compare = {
+				new: function (a, b) { return b.dataset.created.localeCompare(a.dataset.created); },
+				old: function (a, b) { return a.dataset.created.localeCompare(b.dataset.created); },
+				name: function (a, b) { return a.dataset.kana.localeCompare(b.dataset.kana, 'ja'); }
+			};
+
+			const sortBy = function (key) {
+				if (!compare[key]) key = 'new';
+				items.slice().sort(compare[key]).forEach(function (li) { list.appendChild(li); });
+				box.querySelectorAll('button').forEach(function (b) {
+					b.setAttribute('aria-pressed', b.dataset.sort === key ? 'true' : 'false');
+				});
+				try { localStorage.setItem(SORT_KEY, key); } catch (e) { /* ignore */ }
+			};
+
+			box.addEventListener('click', function (e) {
+				if (e.target.dataset.sort) sortBy(e.target.dataset.sort);
+			});
+
+			let saved = null;
+			try { saved = localStorage.getItem(SORT_KEY); } catch (e) { /* ignore */ }
+			sortBy(saved);
+			box.hidden = false;
+		})();
+	</script>
+</body></html>

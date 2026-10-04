@@ -1,0 +1,173 @@
+<!DOCTYPE html><html><head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=0">
+	<script src="../audio/bgm.js"></script>
+	<title>汐見港ノクターン</title>
+	<link rel="stylesheet" type="text/css" href="../avg.css">
+	<style>
+		.mincho {
+			font-family: "Yu Mincho", "YuMincho", "游明朝", "Hiragino Mincho ProN", "MS Mincho", serif;
+		}
+		#ending-area {
+			position: relative;
+			margin: 10px;
+			width: 538px;
+			height: 180px;
+			border: solid 1px white;
+			overflow: hidden;
+		}
+		#ending-area img {
+			position: absolute;
+			left: 0; top: 0;
+			opacity: 0;
+			animation: fadein 4s forwards;
+		}
+		#ending-kan {
+			position: absolute;
+			top: 12px; left: 0;
+			width: 538px;
+			text-align: center;
+			font-size: 24px;
+			letter-spacing: 0.3em;
+			color: #fff8ec;
+			text-shadow: 0 0 10px rgba(160, 20, 40, 0.9);
+			opacity: 0;
+			animation: fadein 3s 2s forwards;
+		}
+		#roll-area {
+			position: relative;
+			margin: 0 10px 10px 10px;
+			width: 538px;
+			height: 100px;
+			border: solid 1px white;
+			overflow: hidden;
+			cursor: pointer;
+		}
+		#roll {
+			position: absolute;
+			top: 100px;
+			width: 538px;
+			animation: roll 40s 4s linear forwards;
+		}
+		#roll.skip {
+			animation: none;
+			transform: translateY(calc(-100% - 100px));
+		}
+		#roll p, #roll h3 {
+			text-align: center;
+			line-height: 1.9;
+		}
+		#roll h3 {
+			margin-top: 18px;
+			font-size: 13px;
+			color: #b8a8a0;
+			letter-spacing: 0.3em;
+		}
+		#roll p {
+			font-size: 14px;
+		}
+		#roll .big {
+			font-size: 22px;
+			letter-spacing: 0.3em;
+		}
+		#roll .gap {
+			margin-top: 28px;
+		}
+		#to-title {
+			position: absolute;
+			top: 0; left: 0;
+			width: 538px;
+			height: 100px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 2s;
+			pointer-events: none;
+		}
+		#to-title.show {
+			opacity: 1;
+			pointer-events: auto;
+		}
+		#to-title p {
+			text-align: center;
+			font-size: 13px;
+			color: #b8a8a0;
+			margin-bottom: 12px;
+			letter-spacing: 0.2em;
+		}
+		#to-title a {
+			color: white;
+			text-decoration: none;
+			font-size: 16px;
+			letter-spacing: 0.2em;
+			padding: 2px 12px;
+		}
+		#to-title a:hover {
+			color: black;
+			background-color: white;
+		}
+		@keyframes fadein {
+			to { opacity: 1; }
+		}
+		@keyframes roll {
+			from { transform: translateY(0); }
+			to { transform: translateY(calc(-100% - 100px)); }
+		}
+	</style>
+</head>
+<body>
+	<div id="main-area">
+		<div id="ending-area">
+			<img src="../img/ending.jpg" alt="">
+			<div id="ending-kan" class="mincho">― 完 ―</div>
+		</div>
+		<div id="roll-area" title="クリックでスキップ">
+			<div id="roll" class="mincho">
+				<p class="big">汐見港ノクターン</p>
+
+				<h3>登場人物</h3>
+				<p>久我透　……　私立探偵。元汐見署の刑事</p>
+				<p>白河冴子　……　クラブ月光の歌手</p>
+				<p>桐生千鶴　……　汐見海運のタイピスト</p>
+				<p>銀二　……　月光のピアノ弾き</p>
+				<p>黒田剛造　……　月光のオーナー。汐見の顔役</p>
+				<p>鬼塚　……　汐見警察署の警部</p>
+				<p>桐生修一　……　汐見海運の経理係</p>
+				<p>真壁　……　久我のかつての相棒</p>
+
+				<h3>スタッフ</h3>
+				<p>企画・監修　it-dkt</p>
+				<p>シナリオ・背景画像　Claude</p>
+				<p>人物画像　ChatGPT</p>
+				<p>システム　avg.NET</p>
+
+				<p class="gap">港の夜想曲は、今夜もどこかで流れている。</p>
+				<p class="gap">Thank you for playing.</p>
+			</div>
+			<div id="to-title">
+				<p>雨上がりの港に、汽笛が響いた――</p>
+				<a href="../index.html" class="mincho">タイトルへ</a>
+			</div>
+		</div>
+	</div>
+	<audio id="bgm-audio" src="../audio/bgm-true-end.mp3" data-track="true-end" loop preload="auto"></audio>
+
+	<script>
+		// the game is over: clear the player's flag (same key as avg.js)
+		sessionStorage.removeItem('shiomi:AVG_FLAG_KEY');
+
+		const roll = document.getElementById('roll');
+		const toTitle = document.getElementById('to-title');
+
+		const finishRoll = function () {
+			roll.classList.add('skip');
+			toTitle.classList.add('show');
+		};
+
+		roll.addEventListener('animationend', finishRoll);
+		// click the roll to skip it
+		document.getElementById('roll-area').addEventListener('click', finishRoll);
+	</script>
+</body></html>
