@@ -45,6 +45,7 @@
 			animation: fadein 3s 2s forwards;
 		}
 		#menu {
+			position: relative;
 			margin: 0 10px 10px 10px;
 			padding: 10px;
 			width: 518px;
@@ -77,6 +78,21 @@
 			background: none;
 			cursor: default;
 		}
+		#back-home {
+			position: absolute;
+			right: 10px;
+			bottom: 6px;
+		}
+		#back-home a {
+			font-size: 12px;
+			letter-spacing: 0.1em;
+			color: #999;
+			text-decoration: none;
+		}
+		#back-home a:hover {
+			color: white;
+			text-decoration: underline;
+		}
 		@keyframes fadein {
 			to { opacity: 1; }
 		}
@@ -94,6 +110,7 @@
 				<li id="menu-start" class="mincho">はじめから</li>
 				<li id="menu-continue" class="mincho">つづきから</li>
 			</ul>
+			<div id="back-home"><a href="../index.html">← 作品一覧へ戻る</a></div>
 		</div>
 	</div>
 	<audio id="bgm-audio" src="audio/bgm-title.mp3" data-track="title" loop preload="auto"></audio>
