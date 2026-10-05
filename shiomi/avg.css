@@ -10,6 +10,7 @@ body {
 
 #main-area {
 	width: 560px;
+	margin: 0 auto;	/* center horizontally in the window */
 }
 
 #image-area {
