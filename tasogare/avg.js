@@ -15,17 +15,40 @@ let splitMsgs = [];
 let eventString = DEFAULT_EVENT_STRING;
 let personMode = ''; 
 let isOk = true;
+// incremented each time a message part starts, to stop showing the previous part
+let messagePartId = 0;
+// true while a message part is being shown character by character
+let isTyping = false;
+// set by clicking the message area, to show the rest of the message part at once
+let skipTyping = false;
+// timer and function to show the next charactor, to skip typing immediately
+let typingTimer = null;
+let typeNext = null;
 
 $(document).ready(function () {
+	$('#message-area').on('click', onClickMessageArea);
 	initScene();
 });
+
+// click on the message area: skip typing, or go to the next message part
+const onClickMessageArea = function () {
+	if (isTyping) {
+		// show the rest now, without waiting for the timer
+		skipTyping = true;
+		clearTimeout(typingTimer);
+		typeNext();
+		return;
+	}
+
+	$(this).find('a.message-next').trigger('click');
+}
 
 const initScene = function () {
 
 	let flag = getFlag();
 	let scene_id = getSceneId();
 
-	// clear message area
+	// clear message area 
 	$('#message-area').html('Loading...');
 
 	// get initial message of the scene
@@ -164,7 +187,15 @@ const onClickCommand = function (e) {
 	const target_id = link_id.substring(3, 6);
 
 	const flag = getFlag();
-	const person = getPersonMode();
+
+	if (target_id) {
+		// when tartget_id is set in the id attribute of clicked element (ex: 'CHK001')
+		// show the result of executing the command to the target
+		getMessage(scene_id, command_id, target_id, flag);
+		// get top level command again
+		getCommands(scene_id);
+		return;
+	}
 
 	// request data for api
 	const data = {
@@ -173,26 +204,14 @@ const onClickCommand = function (e) {
 		flag: flag
 	};
 
-	let success = null;
-	if (target_id) {
-		// callback: when tartget_id is set in the id attributge of clicked element (ex: 'CHK001')
-		success = function (data, dataType) {
-			// show the result of executing the command to the target
-			getMessage(scene_id, command_id, target_id, flag);
-			// get top level command again
-			getCommands(scene_id);
-		}
-
-	} else {
-		// callback: when tartget_id is NOT set (ex: 'CHK')
-		success = function (data, dataType) {
-			if(data.commands && data.commands.length > 0){
-				// if some targets returned, show them 
-				showCommands(data);
-			}else{
-				// if no target returned, only show the default message
-				showMessage(data);
-			}
+	// callback: when tartget_id is NOT set (ex: 'CHK')
+	const success = function (data, dataType) {
+		if(data.commands && data.commands.length > 0){
+			// if some targets returned, show them
+			showCommands(data);
+		}else{
+			// if no target returned, only show the default message
+			showMessage(data);
 		}
 	}
 
@@ -231,7 +250,7 @@ const execAjax = function (url, pData, pSuccess, pError) {
 	}
 
 	// default error callback
-	const error = function (XMLHttpRequest, textStatus, errorThrown) {
+	let error = function (XMLHttpRequest, textStatus, errorThrown) {
 		alert('Error : ' + errorThrown);
 		$("#XMLHttpRequest").html("XMLHttpRequest : " + XMLHttpRequest.status);
 		$("#textStatus").html("textStatus : " + textStatus);
@@ -277,7 +296,8 @@ const showMessage = function (data) {
 const showMessagePart = function (part_index, eventIndex = 0) {
 
 	const div_selector = '#message-area';
-	const messagePart = splitMsgs[part_index];
+	// split by code points, so emoji (surrogate pairs) are not broken
+	const messagePart = Array.from(splitMsgs[part_index]);
 	//console.log('part text : ' + text);
 
 	// clear message area 
@@ -286,35 +306,56 @@ const showMessagePart = function (part_index, eventIndex = 0) {
 	let index = 0;
 	let eventCount = 0;
 
+	const partId = ++messagePartId;
+	// wait time per charactor, set by the player (see 'code for text speed' below)
+	const waitTime = getTextSpeed().wait;
+	isTyping = true;
+	// no wait: show the whole part at once
+	skipTyping = (waitTime == 0);
+
 	// show charactors one by one
 	const write_text = function () {
-		// if matches defined controll charactors
-		if (messagePart.charAt(index) == MESSAGE_NEWLINE_CHAR) {
-			// new line
-			$(div_selector).html($(div_selector).html() + '<br/>');
-		} else if (messagePart.charAt(index) == MESSAGE_EVENT_CHAR) {
-			// execute event
-			//console.log(`# index=${index} executing eventIndex=${eventIndex + eventCount}`);
-			execEvent(eventIndex + eventCount);
-			eventCount++;
-		} else {
-			// normal charactors
-			$(div_selector).html($(div_selector).html() + messagePart.charAt(index));
-			//console.log(index + ' : ' + messagePart.charAt(index));
-		}
+		// another message part has started
+		if (partId != messagePartId) return;
 
-		index++;
+		// when skipped, show the rest of the part at once (events are executed in order)
+		do {
+			// if matches defined controll charactors
+			if (messagePart[index] == MESSAGE_NEWLINE_CHAR) {
+				// new line
+				$(div_selector).append('<br/>');
+			} else if (messagePart[index] == MESSAGE_EVENT_CHAR) {
+				// execute event
+				//console.log(`# index=${index} executing eventIndex=${eventIndex + eventCount}`);
+				execEvent(eventIndex + eventCount);
+				eventCount++;
+			} else if (index < messagePart.length) {
+				// normal charactors (appended as text, so '<' or '&' is shown as it is)
+				$(div_selector).append(document.createTextNode(messagePart[index]));
+				//console.log(index + ' : ' + messagePart[index]);
+			}
+
+			index++;
+		} while (skipTyping && messagePart.length > index && partId == messagePartId);
+
+		// an event may have started another message part
+		if (partId != messagePartId) return;
+
 		if (messagePart.length > index) {
 			// show next charactor
-			setTimeout(write_text, MESSAGE_WAIT_TIME);
+			typingTimer = setTimeout(write_text, waitTime);
 		} else {
+			isTyping = false;
+
 			// the end of the message part
 			if (splitMsgs.length > (part_index + 1)) {
 				// create link to next part
-				const next_link = $('<a></a>');
+				const next_link = $('<a></a>', { class: 'message-next' });
 				next_link.attr('href', 'javascript:void(0);');
 				next_link.text(MESSAGE_NEXT_LINK);
-				next_link.on('click', function () {
+				next_link.on('click', function (e) {
+					// don't let the message area skip the next part by this click
+					e.stopPropagation();
 					showMessagePart(part_index + 1, eventIndex + eventCount);
 				});
 
@@ -333,7 +374,8 @@ const showMessagePart = function (part_index, eventIndex = 0) {
 		}
 	}
 
-	setTimeout(write_text, MESSAGE_WAIT_TIME);
+	typeNext = write_text;
+	typingTimer = setTimeout(write_text, waitTime);
 }
 
 const setPersonMode = function (person_flag) {
@@ -371,10 +413,11 @@ const execEvent = function (eventIndex) {
 	if (eventString) {
 		//console.log(`# eventString=${eventString} eventIndex=${eventIndex}`)
 		let eventArray = eventString.split(',');
-		if (sceneEvents[eventArray[eventIndex]] !== 'undefined') {
-			sceneEvents[eventArray[eventIndex]](); 
+		const eventName = eventArray[eventIndex];
+		if (typeof sceneEvents[eventName] === 'function') {
+			sceneEvents[eventName]();
 		} else {
-			alert(eventArray[eventIndex] + 'is NOT a function!');
+			alert(eventName + ' is NOT a function!');
 		}
 	}
 }
@@ -394,6 +437,10 @@ const sceneEvents = {
 	showLoadDialog: function(){
 
 		showLoadDialog();
+	},
+	showSpeedDialog: function(){
+
+		showSpeedDialog();
 	}
 };
 
@@ -425,6 +472,7 @@ function saveSlot(slot, flag, sceneId) {
 	const data = {
 		flag,
 		sceneId,
+		path: window.location.pathname,
 		savedAt: new Date().toISOString()
 	};
 	localStorage.setItem(STORAGE_KEY + slot, JSON.stringify(data));
@@ -539,7 +587,74 @@ window.showLoadDialog = function () {
 			document.getElementById('avg-save-overlay')?.remove();
 			toast(`Loaded from slot ${s.slot}.`);
 
-			window.location.href = `../scenes/${data.sceneId}.html`;
+			// old save data has no path
+			window.location.href = data.path ?? `../scenes/${data.sceneId}.html`;
+		});
+
+		row.appendChild(info);
+		row.appendChild(btn);
+		dialog.appendChild(row);
+	});
+
+	const closeBtn = document.createElement('button');
+	closeBtn.id = 'avg-save-close';
+	closeBtn.textContent = 'Cancel';
+	closeBtn.addEventListener('click', () => document.getElementById('avg-save-overlay')?.remove());
+	dialog.appendChild(closeBtn);
+};
+
+/* --------------------------------------------------
+* code for text speed below
+* -------------------------------------------------- */
+
+const TEXT_SPEED_KEY = 'tasogare:avg_text_speed';
+// wait: wait time per charactor (msec). 0 shows the whole message part at once.
+const TEXT_SPEEDS = [
+	{ name: 'slow', label: 'Slow', wait: 150 },
+	{ name: 'normal', label: 'Normal', wait: MESSAGE_WAIT_TIME },
+	{ name: 'fast', label: 'Fast', wait: 30 },
+	{ name: 'instant', label: 'Instant', wait: 0 }
+];
+const DEFAULT_TEXT_SPEED = 'normal';
+
+// text speed is kept in the local storage, separately from the save data
+function getTextSpeed() {
+	const name = localStorage.getItem(TEXT_SPEED_KEY);
+	return TEXT_SPEEDS.find(s => s.name == name)
+		?? TEXT_SPEEDS.find(s => s.name == DEFAULT_TEXT_SPEED);
+}
+
+function setTextSpeed(name) {
+	localStorage.setItem(TEXT_SPEED_KEY, name);
+}
+
+// text speed dialog (same look as the save/load dialog)
+window.showSpeedDialog = function () {
+	document.getElementById('avg-save-overlay')?.remove();
+
+	const dialog = buildOverlay();
+	dialog.innerHTML = '<h2>⏩ Text speed</h2>';
+
+	const current = getTextSpeed();
+
+	TEXT_SPEEDS.forEach(s => {
+		const isCurrent = (s.name == current.name);
+		const row = document.createElement('div');
+		row.className = 'avg-save-slot';
+
+		const info = document.createElement('div');
+		info.className = 'avg-save-slot-info';
+		info.innerHTML = `<span><strong>${s.label}</strong></span>`;
+
+		const btn = document.createElement('button');
+		btn.className = 'avg-save-slot-btn do-speed';
+		btn.textContent = isCurrent ? '✓ Selected' : 'Select';
+		if (isCurrent) btn.disabled = true;
+
+		btn.addEventListener('click', () => {
+			setTextSpeed(s.name);
+			toast(`Text speed: ${s.label}`);
+			document.getElementById('avg-save-overlay')?.remove();
 		});
 
 		row.appendChild(info);

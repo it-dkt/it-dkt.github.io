@@ -11,6 +11,8 @@
 
 	const COMMON_SCENE = '00000';
 	const NO_MESSAGE = 'ERROR: No message!';
+	// target to cancel a command (e.g. やめる for 行く)
+	const CANCEL_TARGET = 'CXL';
 
 	// flags are unsigned 64-bit in the DB, so use BigInt for the bit operations
 	const big = function (v) {
@@ -51,11 +53,12 @@
 				&& m.TARGET_ID === q.targetId
 				&& hasFlags(m.FLAG, flag));
 			const m = sortBy(rows, (a, b) => desc(a.SCENE_ID, b.SCENE_ID) || desc(big(a.FLAG), big(b.FLAG)))[0];
-			if (!m) return { message: NO_MESSAGE, flag: 0, event: null };
+			// null flag when no message is found, so avg.js keeps the current flag
+			if (!m) return { message: NO_MESSAGE, flag: null, event: null };
 
 			const next = (flag | big(m.SET_FLAG)) & ~big(m.UNSET_FLAG);
-			// avg.js stores the flag only when it is truthy, as it did with the server's number
-			return { message: m.TEXT, flag: next === 0n ? 0 : next.toString(), event: m.EVENT };
+			// a string like the server's, so a flag of 0 ('0') is saved too
+			return { message: m.TEXT, flag: next.toString(), event: m.EVENT };
 		};
 
 		// TargetController.Get
@@ -67,7 +70,7 @@
 			const cs = db.COMMAND.filter(c => inScene(c, q.sceneId) && c.COMMAND_ID === q.commandId);
 
 			// INNER JOIN TARGET x COMMAND
-			const joined = [];
+			let joined = [];
 			sortBy(ts, (a, b) => desc(a.SCENE_ID, b.SCENE_ID) || asc(a.TARGET_ID, b.TARGET_ID)).forEach(t => {
 				cs.forEach(c => joined.push({
 					commandId: t.COMMAND_ID,
@@ -77,6 +80,10 @@
 					forbidden: t.FORBIDDEN
 				}));
 			});
+
+			// only the cancel target left (the others are hidden by the flag): no targets,
+			// so the default message is shown (not in the server's API)
+			if (joined.every(c => c.targetId === CANCEL_TARGET)) joined = [];
 
 			// initial message (000) when there are targets, default message (999) when not
 			const initialId = joined.length > 0 ? '000' : '999';

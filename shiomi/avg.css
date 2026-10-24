@@ -61,6 +61,8 @@ body {
 	clear: both;
 	width: 518px;
 	height: 80px;
+	/* click to skip typing or go to the next part */
+	cursor: pointer;
 }
 
 #command-list li {
@@ -110,6 +112,10 @@ body {
 .avg-save-slot-btn.do-load { background: #226622; color: #fff; }
 .avg-save-slot-btn.do-load[disabled] {
 	background: #444; color: #888; cursor: default; opacity: 1;
+}
+.avg-save-slot-btn.do-speed { background: #5555cc; color: #fff; }
+.avg-save-slot-btn.do-speed[disabled] {
+	background: transparent; color: #aaaaff; cursor: default; opacity: 1;
 }
 #avg-save-close {
 	margin-top: 16px; width: 100%;
