@@ -77,7 +77,9 @@
 					targetId: t.TARGET_ID,
 					mode: c.MODE,
 					text: t.TEXT,
-					forbidden: t.FORBIDDEN
+					forbidden: t.FORBIDDEN,
+					// common targets (ex. items the player has), shown after a line
+					common: t.SCENE_ID === COMMON_SCENE
 				}));
 			});
 

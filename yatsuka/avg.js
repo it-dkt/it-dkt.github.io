@@ -24,11 +24,26 @@ let skipTyping = false;
 // timer and function to show the next charactor, to skip typing immediately
 let typingTimer = null;
 let typeNext = null;
+// true while the targets of the selected command are shown
+let isSelectingTarget = false;
 
 $(document).ready(function () {
 	$('#message-area').on('click', onClickMessageArea);
+	$('#command-area').on('click', onClickCommandArea);
 	initScene();
 });
+
+// click on the command area outside the commands: cancel the selected command
+const onClickCommandArea = function (e) {
+	// the commands handle their own click
+	if ($(e.target).closest('li').length) return;
+
+	// only while selecting a target, and not locked
+	if (!isSelectingTarget || !isOk) return;
+
+	$('#message-area').html('');
+	getCommands();
+}
 
 // click on the message area: skip typing, or go to the next message part
 const onClickMessageArea = function () {
@@ -92,7 +107,15 @@ const showCommands = function (data, dataType) {
 	$('#command-list').empty();
 	// create command links
 	const commands = data['commands'];
-	commands.forEach(command => {
+	// targets have target_id, top level commands don't
+	isSelectingTarget = commands.some(command => command.targetId);
+	// the command area can be clicked to cancel the command
+	if (isSelectingTarget) {
+		$('#command-area').addClass('selecting-target');
+	} else {
+		$('#command-area').removeClass('selecting-target');
+	}
+	commands.forEach((command, index) => {
 		// target_id of top level command is not set.
 		const target_id = command.targetId ? command.targetId : '';
 
@@ -112,6 +135,11 @@ const showCommands = function (data, dataType) {
 		// set disabled if locked
 		if(!isOk)
 			link.addClass('disabled');
+
+		// draw a line between the targets of the scene and the common targets (ex. items the player has)
+		// (common targets are returned after the targets of the scene)
+		if(command.common && index > 0 && !commands[index - 1].common)
+			link.addClass('common-first');
 
 		$(link).text(command.text);
 

@@ -11,6 +11,9 @@ body {
 #main-area {
 	width: 560px;
 	margin: 0 auto;	/* center horizontally in the window */
+	/* don't select text when clicking the messages or commands quickly */
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 #image-area {
@@ -42,6 +45,11 @@ body {
 	overflow-x: hidden;
 	scrollbar-width: thin;
 	scrollbar-color: white black;
+}
+
+/* while selecting a target: click outside the targets to cancel the command */
+#command-area.selecting-target {
+	cursor: pointer;
 }
 
 #command-area::-webkit-scrollbar {
@@ -78,6 +86,13 @@ body {
 
 #command-list li.disabled {
 	color: gray;
+}
+
+/* line between the targets of the scene and the common targets (ex. items the player has) */
+#command-list li.common-first {
+	border-top: dashed 1px gray;
+	margin-top: 4px;
+	padding-top: 4px;
 }
 
 #avg-save-overlay {
