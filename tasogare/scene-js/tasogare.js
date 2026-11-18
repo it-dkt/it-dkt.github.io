@@ -172,6 +172,7 @@ sceneEvents.sePhone = function () { playSe('se-phone'); return true; };
 sceneEvents.seKnock = function () { playSe('se-knock'); return true; };
 sceneEvents.seCreak = function () { playSe('se-creak'); return true; };
 sceneEvents.seBell = function () { playSe('se-bell'); return true; };
+sceneEvents.seChime = function () { sceneEvents.bgmStop(); playSe('se-chime'); return true; };
 sceneEvents.seCrash = function () { playSe('se-crash'); return true; };
 sceneEvents.seNoise = function () { playSe('se-noise'); return true; };
 
