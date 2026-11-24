@@ -1,0 +1,184 @@
+<!DOCTYPE html><html><head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=0">
+	<script src="../audio/bgm.js"></script>
+	<title>おくり島</title>
+	<link rel="stylesheet" type="text/css" href="../avg.css">
+	<style>
+		.mincho {
+			font-family: "Yu Mincho", "YuMincho", "游明朝", "Hiragino Mincho ProN", "MS Mincho", serif;
+		}
+		#ending-area {
+			position: relative;
+			margin: 10px;
+			width: 538px;
+			height: 180px;
+			border: solid 1px white;
+			overflow: hidden;
+		}
+		#ending-area img {
+			position: absolute;
+			left: 0; top: 0;
+			opacity: 0;
+			animation: fadein 4s forwards;
+		}
+		#ending-kan {
+			position: absolute;
+			top: 12px; left: 0;
+			width: 538px;
+			text-align: center;
+			font-size: 24px;
+			letter-spacing: 0.3em;
+			color: #fff8ec;
+			text-shadow: 0 0 10px rgba(40, 80, 140, 0.9);
+			opacity: 0;
+			animation: fadein 3s 2s forwards;
+		}
+		#roll-area {
+			position: relative;
+			margin: 0 10px 10px 10px;
+			width: 538px;
+			height: 100px;
+			border: solid 1px white;
+			overflow: hidden;
+			cursor: pointer;
+		}
+		#roll {
+			position: absolute;
+			top: 100px;
+			width: 538px;
+			animation: roll 40s 4s linear forwards;
+		}
+		#roll.skip {
+			animation: none;
+			transform: translateY(calc(-100% - 100px));
+		}
+		#roll p, #roll h3 {
+			text-align: center;
+			line-height: 1.9;
+		}
+		#roll h3 {
+			margin-top: 18px;
+			font-size: 13px;
+			color: #b8a8a0;
+			letter-spacing: 0.3em;
+		}
+		#roll p {
+			font-size: 14px;
+		}
+		#roll .big {
+			font-size: 22px;
+			letter-spacing: 0.3em;
+		}
+		#roll .gap {
+			margin-top: 28px;
+		}
+		#to-title {
+			position: absolute;
+			top: 0; left: 0;
+			width: 538px;
+			height: 100px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 2s;
+			pointer-events: none;
+		}
+		#to-title.show {
+			opacity: 1;
+			pointer-events: auto;
+		}
+		#to-title p {
+			text-align: center;
+			font-size: 13px;
+			color: #b8a8a0;
+			margin-bottom: 12px;
+			letter-spacing: 0.2em;
+		}
+		#to-title a {
+			color: white;
+			text-decoration: none;
+			font-size: 16px;
+			letter-spacing: 0.2em;
+			padding: 2px 12px;
+		}
+		#to-title a:hover {
+			color: black;
+			background-color: white;
+		}
+		@keyframes fadein {
+			to { opacity: 1; }
+		}
+		@keyframes roll {
+			from { transform: translateY(0); }
+			to { transform: translateY(calc(-100% - 100px)); }
+		}
+	</style>
+</head>
+<body>
+	<div id="main-area">
+		<div id="ending-area">
+			<img src="../img/ending.png" alt="">
+			<div id="ending-kan" class="mincho">― 完 ―</div>
+		</div>
+		<div id="roll-area" title="クリックでとばす">
+			<div id="roll" class="mincho">
+				<p class="big">おくり島</p>
+
+				<h3>登場人物</h3>
+				<p>ぼく　……　鳴海探偵事務所の見習い</p>
+				<p>天野ゆかり　……　鳴海探偵事務所の助手</p>
+				<p>鳴海恭介　……　鳴海探偵事務所の所長</p>
+				<p>御影澪　……　御影家の孫娘</p>
+				<p>御影宗一郎　……　御影家の当主</p>
+				<p>御影志乃　……　宗一郎の妻</p>
+				<p>御影一馬　……　宗一郎の長男、澪の父</p>
+				<p>御影辰雄　……　宗一郎の次男</p>
+				<p>御影佐和子　……　辰雄の妻</p>
+				<p>黒木　……　大阪の開発業者</p>
+				<p>浜田善蔵　……　岬神社の神主</p>
+				<p>甚八　……　岬の老漁師</p>
+				<p>大沢　……　島の駐在</p>
+				<p>トメ　……　民宿「かもめ荘」のおかみ</p>
+				<p>健太　……　漁師の息子</p>
+				<p>キヨ　……　御影家の女中</p>
+				<p>船頭　……　連絡船の船頭</p>
+				<p>葉子　……　澪の母</p>
+
+				<h3>スタッフ</h3>
+				<p>企画・監修　it-dkt</p>
+				<p>シナリオ・音楽　Claude</p>
+				<p>画像　ChatGPT</p>
+				<p>システム　avg.NET</p>
+
+				<p class="gap">盆の送りの夜の、灯籠の灯り。</p>
+				<p>沖へ流れていく、小さな光。</p>
+				<p class="gap">Thank you for playing.</p>
+			</div>
+			<div id="to-title">
+				<p>連絡船が、白い航跡を残して、遠ざかっていく――</p>
+				<a href="../index.html" class="mincho">タイトルへ</a>
+			</div>
+		</div>
+	</div>
+	<audio id="bgm-audio" src="../audio/bgm-true-end.mp3" data-track="true-end" loop preload="auto"></audio>
+
+	<script>
+		// the game is over: clear the player's flag (same key as avg.js)
+		sessionStorage.removeItem('misaki:AVG_FLAG_KEY');
+
+		const roll = document.getElementById('roll');
+		const toTitle = document.getElementById('to-title');
+
+		const finishRoll = function () {
+			roll.classList.add('skip');
+			toTitle.classList.add('show');
+		};
+
+		roll.addEventListener('animationend', finishRoll);
+		// click the roll to skip it
+		document.getElementById('roll-area').addEventListener('click', finishRoll);
+	</script>
+</body></html>
